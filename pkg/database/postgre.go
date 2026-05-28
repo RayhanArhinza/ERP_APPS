@@ -15,5 +15,5 @@ func InitPostgres(cfg *config.Config) (*gorm.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return db, nil
+		return db, nil
 }
