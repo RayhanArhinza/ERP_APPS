@@ -16,19 +16,39 @@ type AdminHandler struct {
 }
 
 func (h *AdminHandler) GetAll(c *gin.Context) {
-	admins, err := h.adminUsecase.GetAll(
-		c.Request.Context(),
-	)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+	var req dto.PaginationRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(
-		http.StatusOK,
-		dto.ToAdminResponses(admins),
-	)
+
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.Limit <= 0 {
+		req.Limit = 10
+	}
+
+	admins, total, err := h.adminUsecase.GetAll(c.Request.Context(), req.Page, req.Limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	totalPages := total / int64(req.Limit)
+	if total%int64(req.Limit) != 0 {
+		totalPages++
+	}
+
+	c.JSON(http.StatusOK, dto.AdminPaginatedResponse{
+		Data: dto.ToAdminResponses(admins),
+		Pagination: dto.PaginationResponse{
+			Page:       req.Page,
+			Limit:      req.Limit,
+			TotalData:  total,
+			TotalPages: totalPages,
+		},
+	})
 }
 
 func (h *AdminHandler) GetByID(c *gin.Context) {
@@ -93,7 +113,38 @@ func (h *AdminHandler) Create(c *gin.Context) {
 		dto.ToAdminResponse(*res),
 	)
 }
+func (h *AdminHandler) BulkCreate(c *gin.Context) {
+    var requests []dto.CreateAdminRequest
+    if err := c.ShouldBindJSON(&requests); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
 
+    var results []dto.AdminResponse
+    for _, req := range requests {
+        data := &admin.Admin{
+            Name:     req.Name,
+            Email:    req.Email,
+            Password: req.Password,
+            RoleID:   req.RoleID,
+            TglLahir: req.TglLahir,
+            Alamat:   req.Alamat,
+        }
+        res, err := h.adminUsecase.Create(c.Request.Context(), data)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": err.Error(),
+                "failed_on": req.Email,
+            })
+            return
+        }
+        results = append(results, dto.ToAdminResponse(*res))
+    }
+
+    c.JSON(http.StatusCreated, results)
+}
 func (h *AdminHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(
 		c.Param("id"),

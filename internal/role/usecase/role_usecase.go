@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	role "ERP_APPS/internal"
+	"ERP_APPS/internal/role"
 	"ERP_APPS/internal/role/repository"
 	"context"
 	"errors"

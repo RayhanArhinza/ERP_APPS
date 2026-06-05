@@ -11,9 +11,10 @@ func NewAdminHandler(r *gin.RouterGroup, adminUsecase usecase.AdminUsecase){
 	}
 	adminGroup := r.Group("/admins")
 	{
-		adminGroup.GET("/", handler.GetAll)
+		adminGroup.GET("/all", handler.GetAll)
 		adminGroup.GET("/:id", handler.GetByID)
 		adminGroup.POST("/", handler.Create)
+		adminGroup.POST("/bulk", handler.BulkCreate)
 		adminGroup.PUT("/:id", handler.Update)
 		adminGroup.DELETE("/:id", handler.Delete)
 	}

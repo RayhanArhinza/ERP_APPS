@@ -10,7 +10,7 @@ import (
 )
 
 type AdminUsecase interface {
-	GetAll(ctx context.Context) ([]*admin.Admin, error)
+	GetAll(ctx context.Context, page, limit int) ([]*admin.Admin, int64, error)
 	GetByID(ctx context.Context, id uint) (*admin.Admin, error)
 	Create(ctx context.Context, admin *admin.Admin) (*admin.Admin, error)
 	Update(ctx context.Context, admin *admin.Admin) (*admin.Admin, error)
@@ -30,8 +30,10 @@ func NewAdminUsecase(adminRepo repository.AdminRepository) AdminUsecase {
 		adminRepo: adminRepo,
 	}
 }
-func (u *adminUsecase) GetAll(ctx context.Context) ([]*admin.Admin, error){
-	return u.adminRepo.GetAll(ctx)
+func (u *adminUsecase) GetAll(ctx context.Context, page, limit int) ([]*admin.Admin, int64, error){
+	offset := (page - 1) * limit
+	return u.adminRepo.GetAll(ctx, offset, limit)
+
 }
 func (u *adminUsecase) GetByID(ctx context.Context, id uint)(*admin.Admin, error){
 	if id == 0 {

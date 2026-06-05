@@ -1,7 +1,7 @@
 package repository
 
 import (
-	role "ERP_APPS/internal"
+	"ERP_APPS/internal/role"
 	"context"
 
 	"gorm.io/gorm"

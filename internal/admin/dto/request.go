@@ -19,3 +19,8 @@ type UpdateAdminRequest struct {
 	TglLahir  time.Time `json:"tgl_lahir" binding:"required"`
 	Alamat    string    `json:"alamat" binding:"required"`
 }
+
+type PaginationRequest struct {
+	Page  int `form:"page"`
+	Limit int `form:"limit"`
+}

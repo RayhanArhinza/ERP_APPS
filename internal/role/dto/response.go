@@ -1,7 +1,7 @@
 package dto
 
 import (
-	role "ERP_APPS/internal"
+	"ERP_APPS/internal/role"
 	"time"
 )
 type RoleResponse struct {

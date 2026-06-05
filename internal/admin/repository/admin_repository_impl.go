@@ -3,6 +3,7 @@ package repository
 import (
 	"ERP_APPS/internal/admin"
 	"context"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -17,16 +18,29 @@ func NewAdminRepository(db *gorm.DB) AdminRepository {
 	}
 }
 
-func (r *adminRepository) GetAll(ctx context.Context) ([]*admin.Admin, error) {
-	var admins []*admin.Admin
+func (r *adminRepository) GetAll(ctx context.Context, offset, limit int) ([]*admin.Admin, int64, error) {
+    var admins []*admin.Admin
+    var total int64
 
-	if err := r.db.WithContext(ctx).
-		Preload("Role").
-		Find(&admins).Error; err != nil {
-		return nil, err
-	}
+    fmt.Println("=== REPO ===")
+    fmt.Println("offset:", offset, "limit:", limit)  // ← tambah ini
 
-	return admins, nil
+    if err := r.db.WithContext(ctx).
+        Model(&admin.Admin{}).
+        Count(&total).Error; err != nil {
+        return nil, 0, err
+    }
+
+    if err := r.db.WithContext(ctx).
+        Preload("Role").
+        Offset(offset).
+        Limit(limit).
+        Order("id ASC").
+        Find(&admins).Error; err != nil {
+        return nil, 0, err
+    }
+
+    return admins, total, nil
 }
 
 func (r *adminRepository) GetByID(ctx context.Context, id uint) (*admin.Admin, error) {

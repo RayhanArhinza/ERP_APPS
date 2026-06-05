@@ -1,15 +1,11 @@
 package repository
 
 import (
-	"ERP_APPS/internal/admin"
+	admin "ERP_APPS/internal/admin"
 	"context"
 )
-type AdminRepository interface {
-	GetAll(ctx context.Context, offset, limit int) ([]*admin.Admin, int64, error)
-	GetByID(ctx context.Context, id uint) (*admin.Admin, error)
-	Create(ctx context.Context, admin *admin.Admin) (*admin.Admin, error)
-	Update(ctx context.Context, admin *admin.Admin) (*admin.Admin, error)
-	Delete(ctx context.Context, id uint) error
+
+type AuthRepository interface {
 	Login(ctx context.Context, email string) (*admin.Admin, error)
 	Register(ctx context.Context, admin *admin.Admin) (*admin.Admin, error)
 	ChangePassword(ctx context.Context, id uint, password string) error
